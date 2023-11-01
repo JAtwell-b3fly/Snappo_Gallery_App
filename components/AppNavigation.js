@@ -13,7 +13,19 @@ import Share from "./Share";
 
 //Creating the app context containing the containers used to store the states
 const AppContext = createContext({
-    gallery: [],
+    gallery: [{
+        id: 12345,
+        title: "Default Image",
+        uri: "https://i.pinimg.com/564x/3c/61/3c/3c613ca28996e4255753f7d4b2902d4d.jpg",
+        date: "today",
+    },
+    {
+        id: 9999,
+        title: "Anime Image",
+        uri: "https://i.pinimg.com/564x/70/4c/f6/704cf674a86b284238aad608a244183f.jpg",
+        date: "today",
+    },    
+],
     dispatch: () => {},
 });
 
@@ -35,7 +47,19 @@ const appReducer = (state, action) => {
 
 export const AppProvider = ({ children }) => {
     const [state, dispatch] = useReducer(appReducer, {
-        gallery: [],
+        gallery: [{
+            id: 12345,
+            title: "Default Image",
+            uri: "https://i.pinimg.com/564x/3c/61/3c/3c613ca28996e4255753f7d4b2902d4d.jpg",
+            date: "today",
+        },
+        {
+            id: 9999,
+            title: "Anime Image",
+            uri: "https://i.pinimg.com/564x/70/4c/f6/704cf674a86b284238aad608a244183f.jpg",
+            date: "today",
+        }, 
+    ],
     });
 
     return (

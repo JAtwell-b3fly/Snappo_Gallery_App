@@ -1,9 +1,12 @@
 import React, {useEffect, useRef} from "react";
 import {View, Text, Image, ScrollView, StyleSheet, TouchableOpacity, TextInput, Animated} from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import { useRoute } from "@react-navigation/native";
 
 const Share = () => {
     const navigation = useNavigation();
+    const route = useRoute();
+    const { selectedImage } = route.params;
 
     const translateY = useRef(new Animated.Value(700)).current;
 
@@ -48,11 +51,11 @@ const Share = () => {
 
             <ScrollView style={styles.content}>
                 <View style={styles.card}>
-                    <Image style={styles.image} source={require("../assets/avatar3.jpg")} resizeMode="contain" />
+                    <Image style={styles.image} source={{uri: selectedImage.uri}} resizeMode="contain" />
                     
                     <View style={styles.details}>
-                        <Text style={styles.image_title}>Image Title</Text>
-                        <Text style={styles.image_details}>Date | Time | File Size</Text>
+                        <Text style={styles.image_title}>{selectedImage.title}</Text>
+                        <Text style={styles.image_details}>{selectedImage.date}</Text>
 
                         <View style={styles.btns_div}>
                             <TouchableOpacity>

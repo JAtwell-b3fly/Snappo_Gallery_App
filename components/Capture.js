@@ -3,6 +3,7 @@ import {View, StyleSheet, Text, TouchableOpacity, Image, TextInput, Alert} from 
 import { useNavigation } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 import { useAppContext } from "./AppNavigation";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Capture = () => {
     const navigation = useNavigation();
@@ -11,7 +12,7 @@ const Capture = () => {
     const [capturedImage, setCapturedImage] = useState(null);
     const [imageTitle, setImageTitle] = useState("");
 
-    const [imageUrl, setImageUrl] = useState("");
+    const [imageUrl, setImageUrl] = useState(null);
 
     const openCameraLib = async() => {
         const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
@@ -55,25 +56,38 @@ const Capture = () => {
         openCameraLib();
     };
 
-    const saveImage = () => {
-        if (capturedImage && imageTitle) {
+    const saveImage = async() => {
+        if (capturedImage) {
             const newImage = {
                 id: Date.now(),
-                title: imageTitle,
+                title: Date.now() + "img",
                 date: new Date().toLocaleString(),
                 uri: capturedImage.assets[0].uri,
-                time: "time",
-                filesize: "filesize",
             };
 
-            //Dispatch an action to add the image to the gallery
-            dispatch({type: "ADD_IMAGE", payload: newImage})
-
-            //Reset state and show a success message
-            setCapturedImage(null);
-            setImageTitle("");
-
-            Alert.alert("Image Saved Successfully")
+            try {
+                // Get the current gallery from AsyncStorage
+                const storedGallery = await AsyncStorage.getItem('images');
+                const parsedGallery = storedGallery ? JSON.parse(storedGallery) : [];
+    
+                // Update the gallery with the new image
+                const updatedGallery = [...parsedGallery, newImage];
+    
+                // Save the updated gallery back to AsyncStorage
+                await AsyncStorage.setItem('images', JSON.stringify(updatedGallery));
+    
+                // Update your global state using dispatch
+                dispatch({ type: "SET_CAPTURE", payload: updatedGallery });
+    
+                // Reset state and show a success message
+                setCapturedImage(null);
+                setImageTitle("");
+    
+                Alert.alert("Image Saved Successfully");
+            } catch (error) {
+                console.error('Error saving image to AsyncStorage:', error);
+                Alert.alert("Failed to save image");
+            }
         } else {
             Alert.alert("Enter an Image Title")
         }
@@ -101,11 +115,6 @@ const Capture = () => {
                 </TouchableOpacity>
                 )}
 
-            </View>
-
-            <View style={styles.title_div}>
-                <Text style={styles.label}>Image Title</Text>
-                <TextInput value={imageTitle} onChangeText={(text) => setImageTitle(text)} style={styles.input} placeholder="Type title here..." />
             </View>
 
             <View style={styles.cancel_save_div}>
@@ -169,7 +178,7 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         textAlign: "center",
         position: "absolute",
-        top: 150,
+        top: 200,
         left: 40,
     },
     camera_btn: {
@@ -217,7 +226,7 @@ const styles = StyleSheet.create({
     },
     cancel_save_div: {
         position: "relative",
-        top: 80,
+        top: 280,
         borderStyle: "solid",
         borderWidth: 3,
         borderColor: "pink",
